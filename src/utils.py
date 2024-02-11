@@ -3,7 +3,8 @@ import os
 from typing import Any
 import psycopg2
 import requests
-
+from dotenv import load_dotenv
+load_dotenv()
 
 def getting_data_from_file(filename: str) -> Any:
     """ принимает на вход путь до файла и возвращает список данных. Если есть ошибка,
@@ -52,12 +53,13 @@ def creating_databases() -> None:
     conn = psycopg2.connect(dbname="postgres", user="postgres", password="s4v77Am")
     cursor = conn.cursor()
     conn.autocommit = True
+    cursor.execute("DROP DATABASE vacancies_by_company")
     cursor.execute("CREATE DATABASE vacancies_by_company")
 
 
 def creating__tables() -> None:
     """ Создание в vacancies_by_company две таблицы: company, vacancies """
-    conn = psycopg2.connect(dbname="vacancies_by_company", user="postgres", password="s4v77Am")
+    conn = psycopg2.connect(dbname="vacancies_by_company", user="postgres", password=os.getenv('password'))
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE company (id_company SERIAL PRIMARY KEY,"
                    " company_name VARCHAR(100), number_of_vacancies INTEGER)")
@@ -69,7 +71,7 @@ def creating__tables() -> None:
 
 def filling_company_with_data(data_list: list) -> None:
     """ Заполнение данными таблицу company """
-    conn = psycopg2.connect(dbname="vacancies_by_company", user="postgres", password="s4v77Am")
+    conn = psycopg2.connect(dbname="vacancies_by_company", user="postgres", password=os.getenv('password'))
     with conn.cursor() as cur:
         for data in data_list:
             cur.execute("INSERT INTO company (id_company, company_name, number_of_vacancies)"
@@ -80,7 +82,7 @@ def filling_company_with_data(data_list: list) -> None:
 
 def filling_vacancies_with_data(data_list: list) -> None:
     """ Заполнение данными таблицу vacancies """
-    conn = psycopg2.connect(dbname="vacancies_by_company", user="postgres", password="s4v77Am")
+    conn = psycopg2.connect(dbname="vacancies_by_company", user="postgres", password=os.getenv('password'))
     with conn.cursor() as cur:
         for data in data_list:
             cur.execute("INSERT INTO vacancies (id_vacancy, vacancy_name, salary, link, id_company)"
